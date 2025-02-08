@@ -6,6 +6,10 @@ app = Flask(__name__)
 API_KEY = "4732991db4683111396788a5f7cefd05"
 CITY = "Dublin,IE"
 
+@app.route('/', methods=['GET'])
+def home():
+    return jsonify({"response": "Welcome to Alexa API!"})
+
 @app.route('/weather', methods=['GET'])
 def get_weather():
     URL = f"https://api.openweathermap.org/data/2.5/weather?q={CITY}&appid={API_KEY}&units=metric"
