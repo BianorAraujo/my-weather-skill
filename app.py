@@ -20,9 +20,29 @@ def get_weather():
         feels_like = round(response["main"]["feels_like"])
         temp_min = round(response["main"]["temp_min"])
         temp_max = round(response["main"]["temp_max"])
-        return jsonify({"response": f"The temperature in Dublin is {temp} degrees, but it feels like {feels_like} degrees. Today, the temperature will be between a minimum of {temp_min} degrees and a maximum of {temp_max} degrees"})
+        
+        return jsonify({
+            "version": "1.0",
+            "response": {
+                "outputSpeech": {
+                    "type": "PlainText",
+                    "text": f"The temperature in Dublin is {temp} degrees, but it feels like {feels_like} degrees. Today, the temperature will be between a minimum of {temp_min} degrees and a maximum of {temp_max} degrees."
+                },
+                "shouldEndSession": True
+            }
+        })
+        
     else:
-        return jsonify({"response": "Sorry, I couldn't get the weather."})
+        return jsonify({
+            "version": "1.0",
+            "response": {
+                "outputSpeech": {
+                    "type": "PlainText",
+                    "text": "I'm sorry, I couldn't retrieve the weather information."
+                },
+                "shouldEndSession": True
+            }
+        })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5050)
