@@ -18,7 +18,9 @@ def get_weather():
     if response.get("main"):
         temp = round(response["main"]["temp"])
         feels_like = round(response["main"]["feels_like"])
-        return jsonify({"response": f"The temperature in Dublin is {temp} degrees, but it feels like {feels_like} degrees."})
+        temp_min = round(response["main"]["temp_min"])
+        temp_max = round(response["main"]["temp_max"])
+        return jsonify({"response": f"The temperature in Dublin is {temp} degrees, but it feels like {feels_like} degrees. Today, the temperature will be between a minimum of {temp_min} degrees and a maximum of {temp_max} degrees"})
     else:
         return jsonify({"response": "Sorry, I couldn't get the weather."})
 
