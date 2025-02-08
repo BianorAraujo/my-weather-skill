@@ -10,6 +10,7 @@ CITY = "Dublin,IE"
 def home():
     return jsonify({"response": "Welcome to Alexa API!"})
 
+
 @app.route('/weather', methods=['GET'])
 def get_weather():
     URL = f"https://api.openweathermap.org/data/2.5/weather?q={CITY}&appid={API_KEY}&units=metric"
@@ -20,21 +21,30 @@ def get_weather():
         feels_like = round(response["main"]["feels_like"])
         temp_min = round(response["main"]["temp_min"])
         temp_max = round(response["main"]["temp_max"])
-        
-        return jsonify({
+
+        alexa_response = {
             "version": "1.0",
+            "sessionAttributes": {},
             "response": {
                 "outputSpeech": {
                     "type": "PlainText",
                     "text": f"The temperature in Dublin is {temp} degrees, but it feels like {feels_like} degrees. Today, the temperature will be between a minimum of {temp_min} degrees and a maximum of {temp_max} degrees."
                 },
+                "card": {
+                    "type": "Simple",
+                    "title": "Dublin Weather",
+                    "content": f"Temperature: {temp}°C\nFeels like: {feels_like}°C\nMin: {temp_min}°C, Max: {temp_max}°C"
+                },
                 "shouldEndSession": True
             }
-        })
-        
+        }
+
+        return jsonify(alexa_response)
+    
     else:
         return jsonify({
             "version": "1.0",
+            "sessionAttributes": {},
             "response": {
                 "outputSpeech": {
                     "type": "PlainText",
