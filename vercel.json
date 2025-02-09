@@ -1,14 +1,14 @@
 { 
     "builds": [ 
         { 
-            "src":"app.py", 
+            "src":"alexa.py", 
             "use":"@vercel/python" 
         } 
     ], 
     "routes": [ 
         { 
             "src":"/(.*)", 
-            "dest":"app.py" 
+            "dest":"alexa.py" 
         } 
     ] 
 }
