@@ -8,7 +8,9 @@ app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
 
 API_KEY = "4732991db4683111396788a5f7cefd05"
-CITY = "Dublin,IE"
+#CITY = "Dublin,IE"
+LAT = "53.408082"
+LON = "-6.165503"
 
 @app.route('/', methods=['GET'])
 def home():
@@ -33,7 +35,7 @@ def alexa_handler():
             "response": {
                 "outputSpeech": {
                     "type": "PlainText",
-                    "text": "Welcome to Dublin Weather. You can ask for the current temperature!"
+                    "text": "Welcome my weather. What are you would to know?"
                 },
                 "shouldEndSession": False
             }
@@ -58,7 +60,7 @@ def alexa_handler():
     })
 
 def get_weather():
-    URL = f"https://api.openweathermap.org/data/2.5/weather?q={CITY}&appid={API_KEY}&units=metric"
+    URL = f"https://api.openweathermap.org/data/2.5/weather?lat={LAT}&lon={LON}&appid={API_KEY}&units=metric"
     response = requests.get(URL).json()
 
     app.logger.debug(f"OpenWeatherMap Response: {response}")
