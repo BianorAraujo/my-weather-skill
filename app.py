@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import requests
 import logging
 
@@ -15,6 +15,48 @@ def home():
     return jsonify({"response": "Welcome to Alexa API!"})
 
 @app.route('/weather', methods=['GET'])
+def weather():
+    return get_weather()
+
+@app.route('/weather', methods=['POST'])
+def alexa_handler():
+    data = request.get_json()
+    app.logger.debug(f"Alexa Request: {data}")
+
+    # Verifica o tipo de requisição da Alexa
+    request_type = data.get("request", {}).get("type")
+
+    if request_type == "LaunchRequest":
+        return jsonify({
+            "version": "1.0",
+            "sessionAttributes": {},
+            "response": {
+                "outputSpeech": {
+                    "type": "PlainText",
+                    "text": "Welcome to Dublin Weather. You can ask for the current temperature!"
+                },
+                "shouldEndSession": False
+            }
+        })
+
+    elif request_type == "IntentRequest":
+        intent_name = data["request"]["intent"]["name"]
+
+        if intent_name == "GetWeatherIntent":
+            return get_weather()
+
+    return jsonify({
+        "version": "1.0",
+        "sessionAttributes": {},
+        "response": {
+            "outputSpeech": {
+                "type": "PlainText",
+                "text": "I'm not sure how to handle that request."
+            },
+            "shouldEndSession": True
+        }
+    })
+
 def get_weather():
     URL = f"https://api.openweathermap.org/data/2.5/weather?q={CITY}&appid={API_KEY}&units=metric"
     response = requests.get(URL).json()
