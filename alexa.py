@@ -2,6 +2,8 @@ from flask import Flask, jsonify, request
 import math
 import requests
 import logging
+from rain import Rain
+from temperature import Temperature
 
 app = Flask(__name__)
 
@@ -16,42 +18,45 @@ IS_DAY = True
 
 @app.route('/', methods=['GET'])
 def home():
-    return jsonify({"response": "Welcome to Alexa API!"})
+    return jsonify({"response": "My Weather API is running!"})
 
-@app.route('/weather', methods=['GET'])
+@app.route('/temperature', methods=['GET'])
 def weather():
-    return get_weather()
+    response = call_api()
+    return Temperature.get_temperature(response, CITY)
+
+@app.route('/rain', methods=['GET'])
+def rain():
+    response = call_api()
+    return Rain.get_rain(response, CITY)
     
 @app.route('/weather', methods=['POST'])
 def alexa_handler():
     data = request.get_json()
-    app.logger.debug(f"Alexa Request: {data}")
 
     # Verifica o tipo de requisição da Alexa
     request_type = data.get("request", {}).get("type")
 
     if request_type == "LaunchRequest":
-        return jsonify({
-            "version": "1.0",
-            "sessionAttributes": {},
-            "response": {
-                "outputSpeech": {
-                    "type": "PlainText",
-                    "text": "Welcome my weather. What are you would to know about the weather?"
-                },
-                "shouldEndSession": False
-            }
-        })
+        return launch_request()
 
     elif request_type == "IntentRequest":
         intent_name = data["request"]["intent"]["name"]
 
+        response = call_api()
+
         if intent_name == "GetWeatherIntent":
-            return get_weather()
+            return Temperature.get_temperature(response, CITY)
+        
+        if intent_name == "GetRainIntent":
+            return Rain.get_rain(response, CITY)
+        
+        if intent_name == "GetTemperatureIntent":
+            return Temperature.get_temperature(response, CITY)
         
         if intent_name == "AMAZON.StopIntent":
             return finish_conversation()
-
+        
     return jsonify({
         "version": "1.0",
         "sessionAttributes": {},
@@ -66,83 +71,26 @@ def alexa_handler():
 
 # Methods
 
-def get_weather():
-    try:
-
-        URL = f"https://api.weatherapi.com/v1/forecast.json?q={CITY}&days=1&key={API_KEY}"
-        
-        app.logger.debug(f"URL: {URL}")
-
-        response = requests.get(URL).json()
-
-        #app.logger.debug(f"Weatherapi Response: {response}")
-
-        if response["location"]["name"] == CITY:
-            
-            IS_DAY = bool(response["current"]["is_day"])
-            current_temp = math.floor(response["current"]["temp_c"])
-            feels_like = math.floor(response["current"]["windchill_c"])
-            min_temp = math.floor(response["forecast"]["forecastday"][0]["day"]["mintemp_c"])
-            max_temp = round(response["forecast"]["forecastday"][0]["day"]["maxtemp_c"])
-
-            alexa_response = {
-                "version": "1.0",
-                "sessionAttributes": {},
-                "response": {
-                    "outputSpeech": {
-                        "type": "PlainText",
-                        "text": f"The temperature in Dublin is {current_temp} degrees, but it feels like {feels_like} degrees. Today, the temperature will be between a minimum of {min_temp} degrees and a maximum of {max_temp} degrees. Anything else?"
-                    },
-                    "card": {
-                        "type": "Simple",
-                        "title": "Dublin Weather",
-                        "content": f"Temperature: {current_temp}°C\nFeels like: {feels_like}°C\nMin: {min_temp}°C, Max: {max_temp}°C"
-                    },
-                    "shouldEndSession": False
-                }
-            }
-            
-            return jsonify(alexa_response)
-        
-        else:
-            alexa_response = {
-                "version": "1.0",
-                "sessionAttributes": {},
-                "response": {
-                    "outputSpeech": {
-                        "type": "PlainText",
-                        "text": f"I'm sorry, I couldn't retrieve the weather information for {CITY}."
-                    },
-                    "shouldEndSession": True
-                }
-            }
-            return jsonify(alexa_response)
-    
-    except requests.exceptions.RequestException as e:
-        error_response = {
+def launch_request():
+    return jsonify({
             "version": "1.0",
             "sessionAttributes": {},
             "response": {
                 "outputSpeech": {
                     "type": "PlainText",
-                    "text": "I'm sorry, I couldn't retrieve the weather information from Weather API."
+                    "text": "Welcome my weather. What are you would to know about the weather?"
                 },
-                "shouldEndSession": True
+                "shouldEndSession": False
             }
-        }
-
-        return jsonify(error_response)
+        })
 
 def finish_conversation():
     try:
-        URL = f"https://api.weatherapi.com/v1/forecast.json?q={CITY}&days=1&key={API_KEY}"
-        
-        response = requests.get(URL).json()
+        response = call_api()
 
         if response["location"]["name"] == CITY:
             IS_DAY = bool(response["current"]["is_day"])
-            
-        
+                    
         if IS_DAY:
             farewell = "day"
         else:
@@ -169,6 +117,35 @@ def finish_conversation():
             "response": {
                 "outputSpeech": {
                     "type": "PlainText",
+                    "text": "I'm sorry, I couldn't retrieve the information from Weather API."
+                },
+                "shouldEndSession": True
+            }
+        }
+
+        return jsonify(error_response)
+
+def call_api():
+
+    try:
+        URL = f"https://api.weatherapi.com/v1/forecast.json?q={CITY}&days=1&key={API_KEY}"
+        
+        #app.logger.debug(f"URL: {URL}")
+
+        response = requests.get(URL).json()
+
+        if response["location"]["name"] == CITY:
+            return response
+        else:
+            return None
+        
+    except requests.exceptions.RequestException as e:
+        error_response = {
+            "version": "1.0",
+            "sessionAttributes": {},
+            "response": {
+                "outputSpeech": {
+                    "type": "PlainText",
                     "text": "I'm sorry, I couldn't retrieve the weather information from Weather API."
                 },
                 "shouldEndSession": True
@@ -176,6 +153,8 @@ def finish_conversation():
         }
 
         return jsonify(error_response)
+
+# Old methods         
 
 def get_weather_old():
     LAT = "53.408082"
