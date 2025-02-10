@@ -1,11 +1,12 @@
-# My Weather - Alexa Skill
+# My Weather
 
-This API is for Alexa to get the temperature in Dublin, the Min and Max temperature and feels like as well.
+This API was created because Alexa don't say the feels like temperature by default. With this API, Alexa can get the feels like temperature in Dublin, the current temperature and the Min and Max temperature as well.
 
 ## Technologys Used
 
 * Python
 * Flask
+* OpenWeather API
 
 This API was deploied on Vercel.
 
