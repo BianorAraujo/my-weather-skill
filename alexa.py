@@ -10,6 +10,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 API_KEY = "7999d32be4ad4e719d3170053250802"
 CITY = "Dublin"
+IS_DAY = True
 
 # Endpoints
 
@@ -19,9 +20,8 @@ def home():
 
 @app.route('/weather', methods=['GET'])
 def weather():
-    #return get_weather()
     return get_weather()
-
+    
 @app.route('/weather', methods=['POST'])
 def alexa_handler():
     data = request.get_json()
@@ -48,6 +48,9 @@ def alexa_handler():
 
         if intent_name == "GetWeatherIntent":
             return get_weather()
+        
+        if intent_name == "AMAZON.StopIntent":
+            return finish_conversation()
 
     return jsonify({
         "version": "1.0",
@@ -76,6 +79,7 @@ def get_weather():
 
         if response["location"]["name"] == CITY:
             
+            IS_DAY = bool(response["current"]["is_day"])
             current_temp = math.floor(response["current"]["temp_c"])
             feels_like = math.floor(response["current"]["windchill_c"])
             min_temp = math.floor(response["forecast"]["forecastday"][0]["day"]["mintemp_c"])
@@ -129,10 +133,54 @@ def get_weather():
 
         return jsonify(error_response)
 
+def finish_conversation():
+    try:
+        URL = f"https://api.weatherapi.com/v1/forecast.json?q={CITY}&days=1&key={API_KEY}"
+        
+        response = requests.get(URL).json()
+
+        if response["location"]["name"] == CITY:
+            IS_DAY = bool(response["current"]["is_day"])
+            
+        
+        if IS_DAY:
+            farewell = "day"
+        else:
+            farewell = "night"
+
+        alexa_response = {
+            "version": "1.0",
+            "sessionAttributes": {},
+            "response": {
+                "outputSpeech": {
+                    "type": "PlainText",
+                    "text": f"Have a good {farewell}"
+                },
+                "shouldEndSession": True
+            }
+        }
+        
+        return jsonify(alexa_response)
+    
+    except requests.exceptions.RequestException as e:
+        error_response = {
+            "version": "1.0",
+            "sessionAttributes": {},
+            "response": {
+                "outputSpeech": {
+                    "type": "PlainText",
+                    "text": "I'm sorry, I couldn't retrieve the weather information from Weather API."
+                },
+                "shouldEndSession": True
+            }
+        }
+
+        return jsonify(error_response)
+
 def get_weather_old():
     LAT = "53.408082"
     LON = "-6.165503"
-    
+
     URL = f"https://api.openweathermap.org/data/2.5/weather?lat={LAT}&lon={LON}&appid={API_KEY}&units=metric"
     
     app.logger.debug(f"URL: {URL}")
