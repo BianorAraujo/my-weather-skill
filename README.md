@@ -10,9 +10,26 @@ This API was created because Alexa don't say the feels like temperature by defau
 
 This API was deploied on Vercel.
 
-The URL to Alexa get the weather in Dublin:
+## Endpoints
+
+- The base URL checks if the API is running:
+```
+https://alexa-temperature.vercel.app
+```
+
+- There is one main endpoint that starts the conversation with Alexa:
 ```
 https://alexa-temperature.vercel.app/weather
+```
+
+- An endpoint to get the temperature information:
+```
+https://alexa-temperature.vercel.app/temperature
+```
+
+- An endpoint to get the rain forecast:
+```
+https://alexa-temperature.vercel.app/rain
 ```
 
 ## Demos
