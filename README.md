@@ -6,7 +6,7 @@ This API was created because Alexa don't say the feels like temperature by defau
 
 * Python
 * Flask
-* OpenWeather API
+* [OpenWeather API](https://www.weatherapi.com)
 
 This API was deploied on Vercel.
 
