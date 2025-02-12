@@ -39,7 +39,10 @@ https://alexa-temperature.vercel.app/rain
 <div align="center">
   <img src="https://github.com/user-attachments/assets/339e8a93-bdf7-4ffd-a0ef-0b3ae20297f1" width="300">
   <img src="https://github.com/user-attachments/assets/5cc09a5c-4190-45ba-aa5c-0ff338b18968" width="300">
+</div>
+<div align="center">
   <img src="https://github.com/user-attachments/assets/001f04c3-abb5-434b-85c0-253bdb146bfb" width="300">
+  <img src="https://github.com/user-attachments/assets/3c02c921-381e-4e2c-adeb-265ed36a37ee" width="300">
 </div>
 
 #### Video
