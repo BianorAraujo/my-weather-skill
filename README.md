@@ -1,5 +1,7 @@
 # My Weather
 
+![last-commit](https://badgen.net/github/last-commit/BianorAraujo/my-weather-skill) ![license](https://badgen.net/github/license/BianorAraujo/my-weather-skill) ![open-issues](https://badgen.net/github/open-issues/bianoraraujo/my-weather-skill)
+
 This API was created because Alexa don't say the feels like temperature by default. With this API, Alexa can get the feels like temperature in Dublin, the current temperature and the Min and Max temperature as well.
 
 ## Technologys Used
