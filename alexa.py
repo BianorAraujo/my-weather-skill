@@ -57,15 +57,18 @@ def alexa_handler():
         if intent_name == "AMAZON.StopIntent":
             return finish_conversation()
         
+        if intent_name == "GetFarewellIntent":
+            return byebye_conversation()
+        
     return jsonify({
         "version": "1.0",
         "sessionAttributes": {},
         "response": {
             "outputSpeech": {
                 "type": "PlainText",
-                "text": "I'm not sure how to handle that request."
+                "text": "I'm sorry, I couldn't understand you. Could you repeat, please?"
             },
-            "shouldEndSession": True
+            "shouldEndSession": False
         }
     })
 
@@ -78,7 +81,7 @@ def launch_request():
             "response": {
                 "outputSpeech": {
                     "type": "PlainText",
-                    "text": "Welcome my weather. What are you would to know about the weather?"
+                    "text": "Welcome to my weather skill. What would you like to know about the weather?"
                 },
                 "shouldEndSession": False
             }
@@ -125,6 +128,37 @@ def finish_conversation():
 
         return jsonify(error_response)
 
+def byebye_conversation():
+    try:
+        alexa_response = {
+            "version": "1.0",
+            "sessionAttributes": {},
+            "response": {
+                "outputSpeech": {
+                    "type": "PlainText",
+                    "text": "Bye bye!"
+                },
+                "shouldEndSession": True
+            }
+        }
+        
+        return jsonify(alexa_response)
+    
+    except requests.exceptions.RequestException as e:
+        error_response = {
+            "version": "1.0",
+            "sessionAttributes": {},
+            "response": {
+                "outputSpeech": {
+                    "type": "PlainText",
+                    "text": "Sorry, I'm not having a good day today."
+                },
+                "shouldEndSession": True
+            }
+        }
+
+        return jsonify(error_response)
+
 def call_api():
 
     try:
@@ -154,61 +188,6 @@ def call_api():
 
         return jsonify(error_response)
 
-# Old methods         
-
-def get_weather_old():
-    LAT = "53.408082"
-    LON = "-6.165503"
-
-    URL = f"https://api.openweathermap.org/data/2.5/weather?lat={LAT}&lon={LON}&appid={API_KEY}&units=metric"
-    
-    app.logger.debug(f"URL: {URL}")
-
-    response = requests.get(URL).json()
-
-    app.logger.debug(f"OpenWeatherMap Response: {response}")
-
-    if response.get("main"):
-        temp = round(response["main"]["temp"])
-        feels_like = round(response["main"]["feels_like"])
-        temp_min = round(response["main"]["temp_min"])
-        temp_max = round(response["main"]["temp_max"])
-
-        alexa_response = {
-            "version": "1.0",
-            "sessionAttributes": {},
-            "response": {
-                "outputSpeech": {
-                    "type": "PlainText",
-                    "text": f"The temperature in Dublin is {temp} degrees, but it feels like {feels_like} degrees. Today, the temperature will be between a minimum of {temp_min} degrees and a maximum of {temp_max} degrees."
-                },
-                "card": {
-                    "type": "Simple",
-                    "title": "Dublin Weather",
-                    "content": f"Temperature: {temp}°C\nFeels like: {feels_like}°C\nMin: {temp_min}°C, Max: {temp_max}°C"
-                },
-                "shouldEndSession": True
-            }
-        }
-
-        app.logger.debug(f"Alexa Response: {alexa_response}")
-        return jsonify(alexa_response)
-    
-    else:
-        error_response = {
-            "version": "1.0",
-            "sessionAttributes": {},
-            "response": {
-                "outputSpeech": {
-                    "type": "PlainText",
-                    "text": "I'm sorry, I couldn't retrieve the weather information."
-                },
-                "shouldEndSession": True
-            }
-        }
-
-        #app.logger.debug(f"Error Response: {error_response}")
-        return jsonify(error_response)
 
 # App run
 
